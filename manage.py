@@ -6,6 +6,8 @@ from models.command import Command
 from models.message import Message
 from models.hook import Hook
 
+from models.recommendation import Recommendation
+
 from hangoutsbot import HangoutsBot
 
 from manager import Manager
@@ -20,17 +22,27 @@ import code
 
 manager = Manager()
 
-
-@manager.command
-def create_tables():
-    """Create the tables for the models in the database"""
-    tables = [Conversation, User, Command, Message, Conversation.members.get_through_model(), Hook]
+def create_the_tables(tables):
     for table in tables:
         if table.table_exists():
             print("Table already exists for {}".format(table))
         else:
             table.create_table()
             print("Created table for {}".format(table))
+
+
+@manager.command
+def create_tables():
+    """Create the tables for the models in the database"""
+    tables = [Conversation, User, Command, Message, Conversation.members.get_through_model(), Hook]
+    create_the_tables(tables)
+
+
+@manager.command
+def create_extra_tables():
+    """Create the extra tables for the models in the database"""
+    tables = [Recommendation]
+    create_the_tables(tables)
 
 
 @manager.command

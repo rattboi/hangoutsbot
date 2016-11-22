@@ -5,7 +5,7 @@ import logging
 import asyncio
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
 
 class Command(BaseModel):
     name = CharField()

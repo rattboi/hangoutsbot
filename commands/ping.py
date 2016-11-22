@@ -1,7 +1,10 @@
 from models.command import BaseCommand
 from utils.parser import parser
+import logging
 import asyncio
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class Ping(BaseCommand):
 
@@ -14,6 +17,7 @@ class Ping(BaseCommand):
         if len(parsed[1]) == 0:
             parsed[1].append("pong")
         message = " ".join(parsed[1])
+        logger.debug(parsed)
         yield from bot.send_message(conversation, message, filter_to_use=parsed[0].filter)
 
 
