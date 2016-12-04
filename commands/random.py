@@ -1,6 +1,5 @@
 from models.command import BaseCommand
 from models.recommendation import Recommendation
-from models.user import User
 from utils.parser import parser
 
 from peewee import fn
@@ -10,6 +9,7 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
 
 class Random(BaseCommand):
 
@@ -25,12 +25,12 @@ class Random(BaseCommand):
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
         recommendations = self.random_recommendations()
-        messages = ""
-        if len(recommendations) > 0: 
+        message = ""
+        if len(recommendations) > 0:
             message = "\n".join(recommendations)
         else:
             message = "-- no results --"
         yield from bot.send_message(conversation, message)
 
-command = Random("random", parser, False)
 
+command = Random("random", parser, False)
