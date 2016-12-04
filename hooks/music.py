@@ -2,9 +2,16 @@ import asyncio
 import settings
 import bs4
 import re
+import logging
 
 from requests import get, post, exceptions
 
+from models.recommendation import Recommendation
+
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class MusicHook(object):
 
@@ -22,15 +29,26 @@ class MusicHook(object):
         except KeyError:
             return url
 
-    def get_url_title(self, url):
-        r = get(url)
-        html = bs4.BeautifulSoup(r.text, 'html.parser')
-        title = ""
-        if html.title:
-            title = html.title.text
-        else:
-            title = r.headers['content-type']
-        return title
+    def find_recommendation(self, user, url):
+        matching_urls = Recommendation.filter(Recommendation.url == url)
+        results = matching_urls.select().where(Recommendation.user == user)
+        return len(results) > 0
+
+    def get_artist_and_album(self, url):
+        matcher = re.compile(r"{}".format(".*\?t=([^ ]+).*"))
+        album_artist = ""
+        if matcher.match(url):
+            album_artist = matcher.match(url).group(1)
+        (album, artist) = album_artist.split('_-_')
+        artist = artist.replace('_',' ')
+        album = album.replace('_',' ')
+        return (artist, album)
+        
+    def save_recommendation(self, user, url):
+        short_url = self.get_short_url(url)
+        if not self.find_recommendation(user, short_url):
+            (artist, album) = self.get_artist_and_album(url)
+            recommendation = Recommendation.create(user=user, artist=artist, album=album, url=short_url, time=datetime.now())
 
     @asyncio.coroutine
     def run(self, bot, conversation, user, text):
@@ -40,8 +58,6 @@ class MusicHook(object):
             if matcher.match(word):
                 urls.append(matcher.match(word).group(1))
         for url in urls:
-            message = "** {} **\n{}".format(self.get_url_title(url), self.get_short_url(url))
-            yield from bot.send_message(conversation, message)
+            self.save_recommendation(user, url)
 
-
-hook = MusicHook("music", ".*(http[s]?://play.google.com/music/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+).*")
+hook = MusicHook("music", ".*(http[s]?://play.google.com/music/m/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+).*")

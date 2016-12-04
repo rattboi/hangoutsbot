@@ -6,3 +6,4 @@ private/
 **.db
 **.log
 logs/
+refresh_token.txt
