@@ -7,6 +7,7 @@ from models.message import Message
 from models.hook import Hook
 
 from models.recommendation import Recommendation
+from models.lastuser import LastUser
 
 from hangoutsbot import HangoutsBot
 
@@ -41,7 +42,7 @@ def create_tables():
 @manager.command
 def create_extra_tables():
     """Create the extra tables for the models in the database"""
-    tables = [Recommendation]
+    tables = [Recommendation, LastUser]
     create_the_tables(tables)
 
 
