@@ -49,7 +49,11 @@ class Now(BaseCommand):
         """ gets the current artist and track from last """
         track = now.get_name()
         artist = now.get_artist().get_name()
-        album = now.get_album().get_name()
+        album = ""
+        try:
+            album = now.get_album().get_name()
+        except:
+            album = "(no album)"
         return (track, artist, album)
 
     @asyncio.coroutine
