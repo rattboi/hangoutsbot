@@ -1,5 +1,4 @@
 from models.command import BaseCommand
-from models.lastuser import LastUser
 from utils.parser import parser
 
 import logging
@@ -17,9 +16,9 @@ class Now(BaseCommand):
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
         message = ""
-        lastfm_user = self.bot.get_lastfm_user(user.id)
+        lastfm_user = bot.lastfm.get_lastfm_user(user.id)
         if lastfm_user is not None:
-            message = self.bot.get_recent_track(lastfm_user)
+            message = bot.lastfm.get_recent_track(lastfm_user)
         else:
             message = "** must set username first (!reglast)**"
         yield from bot.send_message(conversation, message)
