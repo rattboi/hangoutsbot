@@ -19,6 +19,8 @@ from utils.hooks import register_hooks
 from utils.enums import EventType, ConversationType
 from utils.textutils import spacing
 
+from services.lastfm import Lastfm
+
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -36,6 +38,10 @@ class HangoutsBot(object):
         self.client = hangups.client.Client(self.login())
         self.user = User.get_or_create(id=settings.BOT_ID, defaults={'first_name': settings.BOT_FIRST_NAME, 'last_name': settings.BOT_LAST_NAME})[0]
         self.hooks = Hook.select()
+        self.lastfm = Lastfm(settings.LAST_API_KEY,
+                             settings.LAST_API_SECRET,
+                             settings.LAST_USER,
+                             settings.LAST_PASS_HASH)
 
     def login(self):
         return hangups.auth.get_auth_stdin(settings.COOKIES_FILE_PATH)
