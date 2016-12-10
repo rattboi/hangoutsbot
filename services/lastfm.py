@@ -17,6 +17,14 @@ class Lastfm(object):
                                             username=username,
                                             password_hash=password_hash)
 
+    def is_valid_user(self, last_username):
+        last_user = User(last_username, self.network)
+        try:
+            last_user.get_name()
+            return True
+        except:
+            return False
+
     def get_lastfm_user(self, user_id):
         """ returns a user's last.fm user name """
         try:
