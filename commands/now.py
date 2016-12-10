@@ -20,10 +20,7 @@ class Now(BaseCommand):
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
         parsed = self.parser.parse_known_args(args)
-
-        list_all = False
-        if parsed[0].all is not None:
-            list_all = True
+        list_all = parsed[0].all
 
         message = ""
         if list_all:
