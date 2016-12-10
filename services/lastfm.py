@@ -29,6 +29,14 @@ class Lastfm(object):
             return False
 
 
+    def get_all_lastfm_users(self):
+        """ returns a user's last.fm user name """
+        try:
+            users = LastUser.select()
+            return [user.lastfm_user for user in users]
+        except:
+            return []
+
     def get_lastfm_user(self, user_id):
         """ returns a user's last.fm user name """
         try:
