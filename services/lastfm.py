@@ -17,9 +17,10 @@ class Lastfm(object):
                                             username=username,
                                             password_hash=password_hash)
 
-    def get_lastfm_user(self, id):
+    def get_lastfm_user(self, user_id):
+        """ returns a user's last.fm user name """
         try:
-            user = LastUser.get(LastUser.user_id == id)
+            user = LastUser.get(LastUser.user_id == user_id)
             return user.lastfm_user
         except:
             return None
@@ -46,4 +47,3 @@ class Lastfm(object):
         except:
             album = "(no album)"
         return (track, artist, album)
-

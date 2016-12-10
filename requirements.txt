@@ -4,6 +4,7 @@ appdirs==1.4.0
 beautifulsoup4==4.5.1
 chardet==2.3.0
 ConfigArgParse==0.10.0
+gmusicapi==10.1.0
 hangups==0.4.1
 pylast==1.6.0
 manage.py==0.2.10

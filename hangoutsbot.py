@@ -20,6 +20,7 @@ from utils.enums import EventType, ConversationType
 from utils.textutils import spacing
 
 from services.lastfm import Lastfm
+from services.gmusic import Gmusic
 
 from datetime import datetime
 
@@ -42,6 +43,8 @@ class HangoutsBot(object):
                              settings.LAST_API_SECRET,
                              settings.LAST_USER,
                              settings.LAST_PASS_HASH)
+        self.gmusic = Gmusic()
+        self.gmusic.login(settings.GMUSIC_USER, settings.GMUSIC_PASS)
 
     def login(self):
         return hangups.auth.get_auth_stdin(settings.COOKIES_FILE_PATH)
