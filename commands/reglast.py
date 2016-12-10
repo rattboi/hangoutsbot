@@ -32,9 +32,9 @@ class Reglast(BaseCommand):
             proposed_user = parsed[1][0]
             if bot.lastfm.is_valid_user(proposed_user):
                 self.set_lastfm_user(user.id, proposed_user)
-                message = "{}'s last.fm username set to **{}**".format(user.first_name, parsed[1][0])
+                message = "{}'s last.fm username set to **{}**".format(user.first_name, proposed_user)
             else:
-                message = "User _{}_ is not a valid Last.fm user"
+                message = "User _{}_ is not a valid Last.fm user".format(proposed_user)
         yield from bot.send_message(conversation, message)
 
 
