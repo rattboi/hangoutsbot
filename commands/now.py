@@ -24,13 +24,18 @@ class Now(BaseCommand):
 
         message = ""
         if list_all:
-            users = bot.lastfm.get_all_lastfm_users()
-            recent_tracks = [bot.lastfm.get_recent_track(user) for user in users]
-            message = "\n".join(recent_tracks)
+            users = bot.lastfm.get_all_users()
+            recent_tracks = [(user[0], bot.lastfm.get_recent_track(user[1])) for user in users]
+            messages = []
+            for info in recent_tracks:
+                messages.append(bot.lastfm.format_message(info[0], info[1][0], info[1][1], info[1][2], info[1][3]))
+            message = "\n".join(messages)
         else:
-            lastfm_user = bot.lastfm.get_lastfm_user(user.id)
+            lastfm_user = bot.lastfm.get_user(user.id)
             if lastfm_user is not None:
-                message = bot.lastfm.get_recent_track(lastfm_user)
+                info = bot.lastfm.get_recent_track(lastfm_user)
+                logger.debug(info)
+                message = bot.lastfm.format_message(None, info[0], info[1], info[2], info[3])
             else:
                 message = "** must set username first (!reglast)**"
         yield from bot.send_message(conversation, message)

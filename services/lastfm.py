@@ -20,24 +20,18 @@ class Lastfm(object):
     def is_valid_user(self, last_username):
         last_user = User(last_username, self.network)
         try:
-            playcount = last_user.get_playcount()
-            if playcount > 0:
-                return True
-            else:
-                return False
+            return bool(last_user.get_playcount() > 0)
         except:
             return False
 
-
-    def get_all_lastfm_users(self):
+    def get_all_users(self):
         """ returns a user's last.fm user name """
         try:
-            users = LastUser.select()
-            return [user.lastfm_user for user in users]
+            return [(luser.user.first_name, luser.lastfm_user) for luser in LastUser.select()]
         except:
             return []
 
-    def get_lastfm_user(self, user_id):
+    def get_user(self, user_id):
         """ returns a user's last.fm user name """
         try:
             user = LastUser.get(LastUser.user_id == user_id)
@@ -55,7 +49,7 @@ class Lastfm(object):
             now = last_user.get_recent_tracks(limit=1)[0].track
             reply = "last played"
         (track, artist, album) = self.get_now_info(now)
-        return "{}: {} - {} - {}".format(reply, artist, album, track)
+        return (reply, artist, album, track)
 
     def get_now_info(self, now):
         """ gets the current artist and track from last """
@@ -65,5 +59,17 @@ class Lastfm(object):
         try:
             album = now.get_album().get_name()
         except:
-            album = "(no album)"
+            album = None
         return (track, artist, album)
+
+    def format_message(self, user, status, artist, album, song):
+        if user is None:
+            if album is None:
+                return "{}: {} - {}".format(status, artist, song)
+            else:
+                return "{}: {} - {} - {}".format(status, artist, album, song)
+        else:
+            if album is None:
+                return "**{}** -> {}: {} - {}".format(user, status, artist, song)
+            else:
+                return "**{}** -> {}: {} - {} - {}".format(user, status, artist, album, song)
