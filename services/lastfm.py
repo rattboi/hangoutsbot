@@ -63,13 +63,10 @@ class Lastfm(object):
         return (track, artist, album)
 
     def format_message(self, user, status, artist, album, song):
-        if user is None:
-            if album is None:
-                return "{}: {} - {}".format(status, artist, song)
-            else:
-                return "{}: {} - {} - {}".format(status, artist, album, song)
-        else:
-            if album is None:
-                return "**{}** -> {}: {} - {}".format(user, status, artist, song)
-            else:
-                return "**{}** -> {}: {} - {} - {}".format(user, status, artist, album, song)
+        message = "{}: **{} ".format(status, artist)
+        if album is not None:
+            message += "- {} ".format(album)
+        message += "- {}**".format(song)
+        if user is not None:
+            message += " (_{}_)".format(user)
+        return message
