@@ -19,7 +19,6 @@ class Recent(BaseCommand):
         self.parser.add_argument("--count")
 
     def recent_recommendations(self, filter_user, filter_limit):
-        recs = []
         recs = Recommendation.select().order_by(Recommendation.time.desc()).limit(filter_limit)
 
         return [r.full_recommendation for r in recs]
@@ -35,9 +34,6 @@ class Recent(BaseCommand):
         filter_limit = 5
         if parsed[0].count is not None:
             filter_limit = int(parsed[0].count)
-
-        logger.debug(filter_user)
-        logger.debug(filter_limit)
 
         recs = self.recent_recommendations(filter_user, filter_limit)
         message = ""
