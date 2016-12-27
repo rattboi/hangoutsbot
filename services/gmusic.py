@@ -10,8 +10,9 @@ logger.setLevel(logging.DEBUG)
 class Gmusic(object):
     """Class to handle Google Music-related functionality"""
 
-    def __init__(self):
+    def __init__(self, bot):
         """ init """
+        self.bot = bot
         self.mob = Mobileclient()
 
     def login(self, username, password):

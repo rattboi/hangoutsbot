@@ -11,7 +11,8 @@ logger.setLevel(logging.DEBUG)
 
 class Lastfm(object):
 
-    def __init__(self, api_key, api_secret, username, password_hash):
+    def __init__(self, bot, api_key, api_secret, username, password_hash):
+        self.bot = bot
         self.network = pylast.LastFMNetwork(api_key=api_key,
                                             api_secret=api_secret,
                                             username=username,
