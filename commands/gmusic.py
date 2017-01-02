@@ -15,12 +15,9 @@ class Gmusic(BaseCommand):
 
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
-        message = ""
-        results = bot.gmusic.search("Nirvana")
-        if results is not None:
-            message = results
-        else:
-            message = "**no results**"
+        parsed = self.parser.parse_known_args(args)
+        searchterms = " ".join(parsed[1])
+        message = bot.gmusic.format_best_match('Nirvana', 'Come as you are')
         yield from bot.send_message(conversation, message)
 
 

@@ -16,8 +16,10 @@ class Setlist(BaseCommand):
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
         parsed = self.parser.parse_known_args(args)
-        artist = " ".join(parsed[1])
-        message = bot.setlistfm.find_setlist(artist)
+        message = "** no results **"
+        if len(parsed[1]) > 0:
+            artist = " ".join(parsed[1])
+            message = bot.setlistfm.find_setlist(artist)
         yield from bot.send_message(conversation, message)
 
 

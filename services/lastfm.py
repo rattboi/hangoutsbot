@@ -65,8 +65,10 @@ class Lastfm(object):
 
     def format_message(self, user, status, artist, album, song):
         message = "{}: **{} ".format(status, artist)
-        if album is not None:
-            message += "- {} ".format(album)
+        if album is None:
+            track = self.bot.gmusic.get_best_song_match(artist, song)
+            album = track['album']
+        message += "- {} ".format(album)
         message += "- {}**".format(song)
         if user is not None:
             message += " (_{}_)".format(user)
