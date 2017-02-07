@@ -67,7 +67,10 @@ class Lastfm(object):
         message = "{}: **{} ".format(status, artist)
         if album is None:
             track = self.bot.gmusic.get_best_song_match(artist, song)
-            album = track['album']
+            try:
+                album = track.get('album')
+            except:
+                album = '(not found)'
         message += "- {} ".format(album)
         message += "- {}**".format(song)
         if user is not None:
