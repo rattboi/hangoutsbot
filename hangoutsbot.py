@@ -22,6 +22,7 @@ from utils.textutils import spacing
 from services.lastfm import Lastfm
 from services.gmusic import Gmusic
 from services.setlistfm import Setlistfm
+from services.shorturl import ShortUrl
 
 from datetime import datetime
 
@@ -48,6 +49,7 @@ class HangoutsBot(object):
         self.gmusic = Gmusic(self)
         self.gmusic.login(settings.GMUSIC_USER, settings.GMUSIC_PASS)
         self.setlistfm = Setlistfm(self)
+        self.shorturl = ShortUrl(self)
 
     def login(self):
         return hangups.auth.get_auth_stdin(settings.COOKIES_FILE_PATH)

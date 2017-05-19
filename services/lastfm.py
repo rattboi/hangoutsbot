@@ -1,5 +1,8 @@
 from models.lastuser import LastUser
 
+import socket
+socket.setdefaulttimeout(2.0)
+
 import pylast
 from pylast import User
 
@@ -64,12 +67,14 @@ class Lastfm(object):
         return (track, artist, album)
 
     def format_message(self, user, status, artist, album, song):
-        message = "{}: **{} ".format(status, artist)
+        message = ""
+        if user is not None:
+            message += "**{}**: ".format(user)
+        message += "{}:\n".format(status)
+        message += "\t_{}\n".format(artist)
         if album is None:
             track = self.bot.gmusic.get_best_song_match(artist, song)
             album = track['album']
-        message += "- {} ".format(album)
-        message += "- {}**".format(song)
-        if user is not None:
-            message += " (_{}_)".format(user)
+        message += "\t{}\n".format(album)
+        message += "\t{}_\n".format(song)
         return message

@@ -90,10 +90,10 @@ class Gmusic(object):
         hits = self.search("{0} {1}".format(artist, title))
         tracks = self.filter_to_song_minimum_info(self.get_songs(hits))
         similarities = [(similarity(track['artist'], artist,
-                                    track['title'], title), track) 
-                                    for track in tracks]
+                                    track['title'], title), track)
+                        for track in tracks]
 
-        sorted_tracks = sorted(similarities, key=lambda k:k[0])
+        sorted_tracks = sorted(similarities, key=lambda k: k[0])
 
         best_track = None
         if len(sorted_tracks) > 0:
@@ -102,10 +102,13 @@ class Gmusic(object):
 
     def format_best_match(self, artist, title):
         track = self.get_best_song_match(artist, title)
+        share_base_url = 'https://play.google.com/music/m/'
 
-        return "{0} {1} {2}".format(track['artist'],
-                                    track['album'],
-                                    track['title'])
+        return "{0} {1} {2} - {3}{4}".format(track['artist'],
+                                             track['album'],
+                                             track['title'],
+                                             share_base_url,
+                                             track['storeId'])
 
     def get_song_ids_from_song_names(self, song_names):
         for name in song_names:
