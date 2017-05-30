@@ -19,7 +19,8 @@ class Convert(BaseCommand):
         message = "** no results **"
         if len(parsed[1]) > 0:
             url = " ".join(parsed[1])
-            message = bot.gmusic.convert_spotify_embed_to_gmusic(url)
+            full_url= bot.gmusic.convert_spotify_embed_to_gmusic(url)
+            message = "Converted: {}".format(bot.shorturl.get_short_url(full_url))
         yield from bot.send_message(conversation, message)
 
 
