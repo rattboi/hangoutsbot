@@ -7,3 +7,4 @@ private/
 **.log
 logs/
 refresh_token.txt
+.ropeproject/
