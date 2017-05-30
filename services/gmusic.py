@@ -3,6 +3,8 @@ import logging
 import string
 
 from gmusicapi import Mobileclient
+from bs4 import BeautifulSoup, NavigableString, Comment
+import requests
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -85,6 +87,17 @@ class Gmusic(object):
                                                description="Bot Playlist",
                                                public=public)
         self.mob.add_songs_to_playlist(playlist_id, song_ids)
+        return playlist_id
+
+    def share_playlist(self, playlist_id):
+        base_share_url = "https://play.google.com/music/playlist"
+        try:
+            [share_token] = [plist['shareToken']
+                             for plist in self.mob.get_all_playlists()
+                             if plist['id'] == playlist_id]
+            return "{}/{}".format(base_share_url, share_token)
+        except ValueError:
+            return "Cannot find playlist"
 
     def get_best_song_match(self, artist, title):
         hits = self.search("{0} {1}".format(artist, title))
@@ -122,3 +135,58 @@ class Gmusic(object):
                  'album':   song.get('album', None),
                  'title':   song.get('title', None),
                  'storeId': song.get('storeId', None)} for song in results]
+
+    def convert_spotify_embed_to_gmusic(self, url):
+        s_list = SpotifyPlaylist(url)
+        title = s_list.title
+        best_matches = [self.get_best_song_match(i.artist, i.track)
+                        for i in s_list.items]
+        filtered_matches = [i for i in best_matches if i is not None]
+        store_ids = [i.get('storeId') for i in filtered_matches]
+        new_plist = self.create_playlist(title, store_ids)
+        return self.share_playlist(new_plist)
+
+
+class SpotifyPlaylist(object):
+    def __init__(self, url):
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, "html.parser")
+            self.title = self._get_title(soup)
+            self.items = self._get_items(soup)
+        else:
+            raise Exception
+
+    def _get_title(self, soup):
+        title = soup.select("div.context-name")
+        return title[0].text.strip()
+
+    def _get_items(self, soup):
+        tracks = soup.select("li.track-row")
+        return [SpotifyTrack(item) for item in tracks]
+
+
+class SpotifyTrack(object):
+    """ Holds info about a Spotify Embed Track """
+    def __init__(self, bs_item):
+        self.artist = self._get_artist(bs_item)
+        self.track = self._get_track(bs_item)
+
+    def _get_artist(self, item):
+        artist = self._strip_first(item.select("div.track-artist"))
+        return artist
+
+    def _get_track(self, item):
+        for hit in item.findAll(attrs={'class': 'track-row-info'}):
+            track = ''.join(child for child in hit.children
+                            if isinstance(child, NavigableString) and not isinstance(child, Comment))
+            return track.strip()
+
+    @staticmethod
+    def _strip_first(item):
+        """ Return stripped first item from list """
+        try:
+            return item[0].text.strip()
+        except (IndexError, AttributeError):
+            return ""
