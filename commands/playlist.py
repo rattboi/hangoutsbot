@@ -22,7 +22,8 @@ class Playlist(BaseCommand):
         return "Converted: {}".format(bot.shorturl.get_short_url(full_url))
 
     def format_playlists(self, bot, plists):
-        links = ["{}\n {}".format(p['name'],
+        f_string = "**{}**\n\t({})"
+        links = [f_string.format(p['name'],
                                   bot.shorturl.get_short_url(p['share']))
                  for p in plists]
         if len(links) > 0:
