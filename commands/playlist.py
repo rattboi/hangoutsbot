@@ -34,8 +34,11 @@ class Playlist(BaseCommand):
     def search(self, bot, args):
         """ Find playlists that match 'searchterm' """
         term = " ".join(args)
-        plists = bot.gmusic.find_playlists(term)
-        return self.format_playlists(bot, plists)
+        if term.strip() != '':
+            plists = bot.gmusic.find_playlists(term)
+            return self.format_playlists(bot, plists)
+        else:
+            return "Error: '!playlist search <searchterm>'"
 
     def recent(self, bot, args):
         """ Gets all bot playlists, and lists them with their shortlinks """
