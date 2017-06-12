@@ -36,6 +36,8 @@ class Playlist(BaseCommand):
         term = " ".join(args)
         if term.strip() != '':
             plists = bot.gmusic.find_playlists(term)
+            if len(plists) > 10:
+                plists = plists[:10]
             return self.format_playlists(bot, plists)
         else:
             return "Error: '!playlist search <searchterm>'"
