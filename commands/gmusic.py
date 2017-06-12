@@ -26,7 +26,6 @@ class Gmusic(BaseCommand):
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):
         parsed = self.parser.parse_known_args(args)
-#        searchterms = " ".join(parsed[1])
         artist = parsed[1][0]
         track = "".join(parsed[1][1:])
         message = self.format_best_match(bot, artist, track)

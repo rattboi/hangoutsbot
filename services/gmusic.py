@@ -69,9 +69,9 @@ class Gmusic(object):
         self.bot = bot
         self.mob = Mobileclient()
 
-    def login(self, username, password):
+    def login(self, username, password, android_id=Mobileclient.FROM_MAC_ADDRESS):
         """ login method """
-        self.mob.login(username, password, Mobileclient.FROM_MAC_ADDRESS)
+        self.mob.login(username, password, android_id)
         return self.mob.is_authenticated()
 
     def search(self, searchterms):
@@ -89,13 +89,16 @@ class Gmusic(object):
         self.mob.add_songs_to_playlist(playlist_id, song_ids)
         return playlist_id
 
-    def share_playlist(self, playlist_id):
+    def _make_playlist_share_link(self, share_token):
         base_share_url = "https://play.google.com/music/playlist"
+        return "{}/{}".format(base_share_url, share_token)
+
+    def share_playlist(self, playlist_id):
         try:
             [share_token] = [plist['shareToken']
                              for plist in self.mob.get_all_playlists()
                              if plist['id'] == playlist_id]
-            return "{}/{}".format(base_share_url, share_token)
+            return self._make_playlist_share_link(share_token)
         except ValueError:
             return "Cannot find playlist"
 
@@ -145,6 +148,32 @@ class Gmusic(object):
         store_ids = [i.get('storeId') for i in filtered_matches]
         new_plist = self.create_playlist(title, store_ids)
         return self.share_playlist(new_plist)
+
+    def get_newest_playlists(self, count=5):
+        """ return 'count' newest playlists """
+        all_plists = self.mob.get_all_playlists()
+        sorted_plists = sorted(all_plists,
+                               key=lambda k: k['lastModifiedTimestamp'],
+                               reverse=True)
+        if count > 0:
+            newest_plists = sorted_plists[:count]
+        else:
+            newest_plists = sorted_plists
+        info = [{'name': p['name'],
+                 'share': self._make_playlist_share_link(p['shareToken'])}
+                for p in newest_plists]
+        return info
+
+    def get_all_playlists(self):
+        """ return all playlists """
+        return self.get_newest_playlists(0)  # 0 = return everything
+
+    def find_playlists(self, searchterm):
+        """ find all playlists that have a name containing 'searchterm' """
+        all_plists = self.get_all_playlists()
+        matches = [p for p in all_plists
+                   if p['name'].lower().find(searchterm.lower()) != -1]
+        return matches
 
 
 class SpotifyPlaylist(object):
