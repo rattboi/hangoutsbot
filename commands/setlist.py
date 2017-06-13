@@ -22,6 +22,17 @@ class Setlist(BaseCommand):
         songs = bot.setlistfm.get_songs_from_stats(stats[0])
         return songs
 
+    def format_playlists(self, bot, plists):
+        f_string = "**{}**\n\t({})"
+        links = [f_string.format(p['name'],
+                                 bot.shorturl.get_short_url(p['share']))
+                 for p in plists]
+        if len(links) > 0:
+            message = "\n".join(links)
+        else:
+            message = "-- no results --"
+        return message
+
     def search(self, bot, args):
         """ Find playlists that match 'searchterm' and are setlists"""
         term = " ".join(args)
