@@ -1,6 +1,7 @@
 """ Service to manage Google Music """
 import logging
 import string
+import datetime
 
 from gmusicapi import Mobileclient
 from bs4 import BeautifulSoup, NavigableString, Comment
@@ -126,10 +127,6 @@ class Gmusic(object):
                                              share_base_url,
                                              track['storeId'])
 
-    def get_song_ids_from_song_names(self, song_names):
-        for name in song_names:
-            self.search()
-
     def get_songs(self, results):
         return [song.get('track', None) for song in results['song_hits']]
 
@@ -144,6 +141,16 @@ class Gmusic(object):
         title = s_list.title
         best_matches = [self.get_best_song_match(i.artist, i.track)
                         for i in s_list.items]
+        filtered_matches = [i for i in best_matches if i is not None]
+        store_ids = [i.get('storeId') for i in filtered_matches]
+        new_plist = self.create_playlist(title, store_ids)
+        return self.share_playlist(new_plist)
+
+    def create_playlist_from_song_names(self, artist, songs):
+        year = datetime.datetime.now().year
+        title = "{} setlist ({})".format(artist, year)
+        best_matches = [self.get_best_song_match(artist, s)
+                        for s in songs]
         filtered_matches = [i for i in best_matches if i is not None]
         store_ids = [i.get('storeId') for i in filtered_matches]
         new_plist = self.create_playlist(title, store_ids)
