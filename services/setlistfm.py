@@ -155,12 +155,20 @@ class Setlistfm(object):
         return best_match
 
     def find_artist(self, artist):
-        payload = {'artistName': artist}
-        result = Setlistfm.get_from_setlistfm_api('search/artists', payload)
-        artists = result.get('artists').get('artist')
-        if not isinstance(artists, list):
-            artists = [artists]
-        artists = Setlistfm.filter_closest_artist_match(artist, artists)
+        full_artists = []
+        payload = {'artistName': artist,
+                   'p': 1}
+        while True:
+            try:
+                result = Setlistfm.get_from_setlistfm_api('search/artists', payload)
+                artists = result.get('artists').get('artist')
+                if not isinstance(artists, list):
+                    artists = [artists]
+                full_artists = full_artists + artists
+                payload['p'] = payload['p'] + 1
+            except requests.exceptions.HTTPError as exc: # NOQA:
+                break
+        artists = Setlistfm.filter_closest_artist_match(artist, full_artists)
         if len(artists) > 3:
             artists = artists[:3]
         artist = Setlistfm.find_most_sets(artists)
