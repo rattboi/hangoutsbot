@@ -13,13 +13,28 @@ class Setlist(BaseCommand):
     def __init__(self, name, parser, admin_required):
         super(Setlist, self).__init__(name, parser, admin_required)
         self.commands = {'generate': self.generate,
-                         'show': self.show}
+                         'show': self.show,
+                         'search': self.search}
 
     def _get_songs(self, bot, artist_name):
         artist = bot.setlistfm.find_artist(artist_name)
         stats = bot.setlistfm.get_stats(artist)
         songs = bot.setlistfm.get_songs_from_stats(stats[0])
         return songs
+
+    def search(self, bot, args):
+        """ Find playlists that match 'searchterm' and are setlists"""
+        term = " ".join(args)
+        if term.strip() != '':
+            plists = bot.gmusic.find_playlists(term)
+            # only return playlists that contain the word setlist
+            plists = [p for p in plists if 'setlist' in p['name']]
+            # limit to 10 plists
+            if len(plists) > 10:
+                plists = plists[:10]
+            return self.format_playlists(bot, plists)
+        else:
+            return "Error: '!setlist search <searchterm>'"
 
     def generate(self, bot, args):
         artist_name = " ".join(args)
