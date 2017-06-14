@@ -203,7 +203,9 @@ class Setlistfm(object):
             soup = BeautifulSoup(response.content, "html.parser")
             setlist_list = soup.select("div.setlistList")
             if setlist_list != []:
-                break
+                songs = setlist_list[0].select("a.songLabel")
+                if songs != []:
+                    break
 
             year = year - 1
             times = times - 1
