@@ -175,7 +175,7 @@ class Setlistfm(object):
         return artist
 
     def get_artist_postfix_code(self, artist):
-        url = artist['url']
+        url = artist.get('url')
         postfix_slash_index = url.rfind('/')
         postfix_unnormalized = url[postfix_slash_index+1:]
         postfix_dot_index = postfix_unnormalized.rfind('.')
@@ -184,9 +184,12 @@ class Setlistfm(object):
 
     def get_stats_url(self, artist):
         stats_url = "http://www.setlist.fm/stats/average-setlist/{}.html"
-        return stats_url.format(self.get_artist_postfix_code(artist))
+        postfix_code = self.get_artist_postfix_code(artist)
+        return stats_url.format(postfix_code)
 
     def get_stats(self, artist):
+        if artist is None:
+            return []
         url = self.get_stats_url(artist)
         year = datetime.datetime.now().year
 

@@ -18,7 +18,11 @@ class Setlist(BaseCommand):
 
     def _get_songs(self, bot, artist_name):
         artist = bot.setlistfm.find_artist(artist_name)
+        if artist is None:
+            return None
         stats = bot.setlistfm.get_stats(artist)
+        if stats is None:
+            return None
         songs = bot.setlistfm.get_songs_from_stats(stats[0])
         return songs
 
@@ -48,16 +52,23 @@ class Setlist(BaseCommand):
             return "Error: '!setlist search <searchterm>'"
 
     def generate(self, bot, args):
-        artist_name = " ".join(args)
-        songs = self._get_songs(bot, artist_name)
-        full_url = bot.gmusic.create_playlist_from_song_names(artist_name, songs)
-        return "Generated playlist for {} setlist: {}".format(artist_name, bot.shorturl.get_short_url(full_url))
+        artist = " ".join(args).title()
+        songs = self._get_songs(bot, artist)
+        if songs is None:
+            return "Couldn't generate setlist for '{}'".format(artist)
+        full_url = bot.gmusic.create_playlist_from_song_names(artist, songs)
+        f_string = "Generated playlist for {} setlist: {}"
+        return f_string.format(artist, bot.shorturl.get_short_url(full_url))
 
     def show(self, bot, args):
         """ Gets all bot playlists, and lists them with their shortlinks """
-        artist_name = " ".join(args)
+        artist_name = " ".join(args).title()
         songs = self._get_songs(bot, artist_name)
-        songs_message = "\n\t".join(songs)
+        if songs is None:
+            return "Couldn't find setlist for '{}'".format(artist_name)
+        numbered_songs = enumerate(songs)
+        songs_message = "\n\t".join("{:02d}. {}".format(i+1, j)
+                                    for i, j in numbered_songs)
         message = "**{}**\n\t{}".format(artist_name, songs_message)
         return message
 
