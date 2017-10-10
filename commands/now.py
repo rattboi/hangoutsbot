@@ -23,10 +23,14 @@ class Now(BaseCommand):
         track = bot.gmusic.get_best_song_match(artist, title)
         share_base_url = 'https://play.google.com/music/m/'
 
-        track_url = "{0}{1}".format(share_base_url, track['storeId'])
-        short_url = bot.shorturl.get_short_url(track_url)
+        if track is not None:
+            track_url = "{0}{1}".format(share_base_url, track['storeId'])
+            short_url = bot.shorturl.get_short_url(track_url)
 
-        return "{0}\t({1})".format(last_message, short_url)
+            return "{0}\t({1})".format(last_message, short_url)
+        else:
+            return "{0}\t(no link found)".format(last_message)
+
 
     @asyncio.coroutine
     def run(self, bot, conversation, user, args):

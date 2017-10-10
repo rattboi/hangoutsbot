@@ -74,7 +74,10 @@ class Lastfm(object):
         message += "\t_{}\n".format(artist)
         if album is None:
             track = self.bot.gmusic.get_best_song_match(artist, song)
-            album = track['album']
+            if track is not None:
+                album = track.get('album', '(none)')
+            else:
+                album = '(none)'
         message += "\t{}\n".format(album)
         message += "\t{}_\n".format(song)
         return message

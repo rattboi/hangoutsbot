@@ -188,7 +188,7 @@ class SpotifyPlaylist(object):
         response = requests.get(url)
 
         if response.status_code == 200:
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
             self.title = self._get_title(soup)
             self.items = self._get_items(soup)
         else:

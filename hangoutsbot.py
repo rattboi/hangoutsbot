@@ -47,7 +47,7 @@ class HangoutsBot(object):
                              settings.LAST_USER,
                              settings.LAST_PASS_HASH)
         self.gmusic = Gmusic(self)
-        self.gmusic.login(settings.GMUSIC_USER, settings.GMUSIC_PASS)
+        self.gmusic.login(settings.GMUSIC_USER, settings.GMUSIC_PASS, '1234567890abcdef')
         self.setlistfm = Setlistfm(self)
         self.shorturl = ShortUrl(self)
 
