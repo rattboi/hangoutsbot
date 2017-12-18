@@ -12,14 +12,20 @@ class Playlist(BaseCommand):
 
     def __init__(self, name, parser, admin_required):
         super(Playlist, self).__init__(name, parser, admin_required)
-        self.commands = {'convert': self.convert,
+        self.commands = {'spotify': self.spotify,
+                         'hbih': self.hbih,
                          'search': self.search,
                          'recent': self.recent}
 
-    def convert(self, bot, args):
+    def spotify(self, bot, args):
         url = " ".join(args)
         full_url = bot.gmusic.convert_spotify_embed_to_gmusic(url)
-        return "Converted: {}".format(bot.shorturl.get_short_url(full_url))
+        return "Converted from Spotify: {}".format(bot.shorturl.get_short_url(full_url))
+
+    def hbih(self, bot, args):
+        url = " ".join(args)
+        full_url = bot.gmusic.convert_hbih_to_gmusic(url)
+        return "Converted from HBIH: {}".format(bot.shorturl.get_short_url(full_url))
 
     def format_playlists(self, bot, plists):
         f_string = "**{}**\n\t({})"

@@ -6,6 +6,7 @@ import datetime
 from gmusicapi import Mobileclient
 from bs4 import BeautifulSoup, NavigableString, Comment
 import requests
+import re
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -117,6 +118,24 @@ class Gmusic(object):
             best_track = sorted_tracks[0][1]
         return best_track
 
+    def get_best_album_match(self, artist, album):
+        hits = self.search("{0} {1}".format(artist, album))
+        albums = self.get_albums(hits)
+        similarities = [(similarity(a['artist'], artist,
+                                    a['album'], album), a)
+                        for a in albums]
+
+        sorted_albums = sorted(similarities, key=lambda k: k[0])
+
+        if len(sorted_albums) == 0:
+            return None
+
+        best_album = sorted_albums[0][1]
+        album_info = self.mob.get_album_info(best_album['albumId'])
+        store_ids = [t['storeId'] for t in album_info['tracks']]
+        print("Store ids in best_album_match: {0}".format(store_ids))
+        return store_ids
+
     def format_best_match(self, artist, title):
         track = self.get_best_song_match(artist, title)
         share_base_url = 'https://play.google.com/music/m/'
@@ -126,6 +145,13 @@ class Gmusic(object):
                                              track['title'],
                                              share_base_url,
                                              track['storeId'])
+
+    def get_albums(self, results):
+        albums = [album.get('album', None) for album in results['album_hits']]
+        album_details = [{'artist': a['artist'],
+                          'album': a['name'],
+                          'albumId': a['albumId']} for a in albums]
+        return album_details
 
     def get_songs(self, results):
         return [song.get('track', None) for song in results['song_hits']]
@@ -143,6 +169,19 @@ class Gmusic(object):
                         for i in s_list.items]
         filtered_matches = [i for i in best_matches if i is not None]
         store_ids = [i.get('storeId') for i in filtered_matches]
+        new_plist = self.create_playlist(title, store_ids)
+        return self.share_playlist(new_plist)
+
+    def convert_hbih_to_gmusic(self, url):
+        hbih_list = HBIHPlaylist(url)
+        title = hbih_list.title
+        store_ids = []
+        for item in hbih_list.items:
+            album_store_ids = self.get_best_album_match(item[0], item[1])
+            print("Adding store ids: {0}".format(album_store_ids))
+            store_ids.extend(album_store_ids)
+
+        print("All store ids: {0}".format(store_ids))
         new_plist = self.create_playlist(title, store_ids)
         return self.share_playlist(new_plist)
 
@@ -226,3 +265,25 @@ class SpotifyTrack(object):
             return item[0].text.strip()
         except (IndexError, AttributeError):
             return ""
+
+
+class HBIHPlaylist(object):
+    def __init__(self, url):
+        res = requests.get(url)
+
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.content.decode('utf-8'), "html.parser")
+            self.title = self._get_title(soup)
+            self.items = self._get_items(soup)
+        else:
+            raise Exception
+
+    def _get_title(self, soup):
+        return soup.title.text
+
+    def _get_items(self, soup):
+        matcher = re.compile(r"{}".format("^\d{1,2}\. (.*) – (.*)"))
+        matches = [matcher.match(i.text)
+                   for i in soup.select('h2')
+                   if matcher.match(i.text)]
+        return [(i.group(1), i.group(2)) for i in matches]
