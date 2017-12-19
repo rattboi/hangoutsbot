@@ -217,9 +217,12 @@ class Gmusic(object):
     def find_playlists(self, searchterm):
         """ find all playlists that have a name containing 'searchterm' """
         all_plists = self.get_all_playlists()
-        matches = [p for p in all_plists
-                   if p['name'].lower().find(searchterm.lower()) != -1]
-        return matches
+        all_matches = all_plists
+        all_terms = searchterm.split(' ')
+        for term in all_terms:
+            all_matches = [p for p in all_matches
+                           if p['name'].lower().find(term.lower()) != -1]
+        return all_matches
 
 
 class SpotifyPlaylist(object):
