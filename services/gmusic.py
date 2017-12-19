@@ -128,7 +128,7 @@ class Gmusic(object):
         sorted_albums = sorted(similarities, key=lambda k: k[0])
 
         if len(sorted_albums) == 0:
-            return None
+            return []
 
         best_album = sorted_albums[0][1]
         album_info = self.mob.get_album_info(best_album['albumId'])
@@ -282,8 +282,8 @@ class HBIHPlaylist(object):
         return soup.title.text
 
     def _get_items(self, soup):
-        matcher = re.compile(r"{}".format("^\d{1,2}\. (.*) – (.*)"))
+        matcher = re.compile(r"{}".format("^(\d{1,2}\.)?(.*)[–-](.*)"))
         matches = [matcher.match(i.text)
-                   for i in soup.select('h2')
+                   for i in soup.select("h1, h2, h3")
                    if matcher.match(i.text)]
-        return [(i.group(1), i.group(2)) for i in matches]
+        return [(i.group(2), i.group(3)) for i in matches]
