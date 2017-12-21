@@ -5,6 +5,7 @@ import datetime
 
 from gmusicapi import Mobileclient
 from bs4 import BeautifulSoup, NavigableString, Comment
+from boltons.setutils import IndexedSet
 import requests
 import re
 
@@ -38,11 +39,13 @@ def find_ratio(a, b):
     ratio = (distance / max(len(a_filtered), len(b_filtered), 1))
     return ratio
 
+
 def similarity(artist_a, artist_b, title_a, title_b):
     artist_ratio = find_ratio(artist_a, artist_b)
     title_ratio = find_ratio(title_a, title_b)
     ratio = artist_ratio + title_ratio
     return ratio
+
 
 def cleanup(s):
     exclude = set(string.punctuation)
@@ -181,8 +184,9 @@ class Gmusic(object):
             print("Adding store ids: {0}".format(album_store_ids))
             store_ids.extend(album_store_ids)
 
-        print("All store ids: {0}".format(store_ids))
-        new_plist = self.create_playlist(title, store_ids)
+        store_id_set = IndexedSet(store_ids)
+        no_dupes_store_ids = list(store_id_set)
+        new_plist = self.create_playlist(title, no_dupes_store_ids[0:1000])
         return self.share_playlist(new_plist)
 
     def create_playlist_from_song_names(self, artist, songs):
@@ -287,6 +291,6 @@ class HBIHPlaylist(object):
     def _get_items(self, soup):
         matcher = re.compile(r"{}".format("^(\d{1,2}\.)?(.*)[–-](.*)"))
         matches = [matcher.match(i.text)
-                   for i in soup.select("h1, h2, h3")
+                   for i in soup.select("h1, h2, h3, li")
                    if matcher.match(i.text)]
         return [(i.group(2), i.group(3)) for i in matches]
